@@ -1,0 +1,42 @@
+# Christopher (siege) O'Brien  <siege@preoccupied.net>
+
+%define with_python_version     @PYTHON_VERSION@%{nil}
+%define python_site_packages	@PYTHON_LIBP@/site-packages
+
+
+Summary: Python bindings for the Meanwhile library
+Name: @PACKAGE@
+Epoch: 0
+Version: @VERSION@
+Release: @RELEASE@
+License: LGPL
+Group: Applications/Internet
+URL: http://meanwhile.sourceforge.net/
+
+Requires: glib2 >= @GLIB_VERSION@
+Requires: meanwhile = @MEANWHILE_VERSION@
+Requires: python >= @PYTHON_VERSION@
+
+Source0: %{name}-%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRequires: glib2-devel >= @GLIB_VERSION@
+BuildRequires: meanwhile-devel = @MEANWHILE_VERSION@
+BuildRequires: python-devel >= @PYTHON_VERSION@
+
+
+%description
+The meanwhile-python package contains a module that permits applications
+written in the Python programming language to use the interface supplied
+by the Meanwhile library.
+
+
+%files
+%defattr(-,root,root,-)
+%{python_site_packages}/_meanwhile.so
+%{python_site_packages}/meanwhile.py
+
+
+%changelog
+* Fri Jan 14 2005  <siege@preoccupied.net>
+- created separate python package
+

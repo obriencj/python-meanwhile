@@ -108,7 +108,8 @@ def _cbResolve(who, kstr):
 
     try:
         cb = lambda id,c,r,w=who: _cbResolved(w,id,c,r)
-        s = tSrvcResolve.resolve([kstr], meanwhile.RESOLVE_USERS, cb)
+        s = tSrvcResolve.resolve([kstr], meanwhile.RESOLVE_USERS +
+                                 meanwhile.RESOLVE_GROUPS, cb)
         tSrvcIm.sendText(who, "initiated resolve request 0x%04x" % s)
         
     except Exception, e:

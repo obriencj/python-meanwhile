@@ -34,10 +34,9 @@
 
 
 static void onAwareHandler(struct mwAwareList *l,
-			   struct mwAwareSnapshot *snap,
-			   gpointer data) {
+			   struct mwAwareSnapshot *snap) {
 
-  mwPyService *self = data;
+  mwPyService *self;
   PyObject *it, *st; /* id and state tuples */
   PyObject *res;
 
@@ -45,6 +44,8 @@ static void onAwareHandler(struct mwAwareList *l,
   (user, community, type, group)
   None or (status, time, desc, alt, name)
   */
+
+  self = mwAwareList_getClientData(l);
 
   it = PyTuple_New(4);
   PyTuple_SetItem(it, 0, PyString_SafeFromString(snap->id.user));
@@ -194,11 +195,25 @@ static struct PyMethodDef tp_methods[] = {
 };
 
 
+static struct mwAwareHandler aware_handler = {
+  .on_attrib = NULL,
+  .clear = NULL,
+};
+
+
+static struct mwAwareListHandler aware_list_handler = {
+  .on_aware = onAwareHandler,
+  .on_attrib = NULL,
+  .clear = NULL,
+};
+
+
 static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
   mwPyService *self;
   mwPySession *sessobj;
   struct mwSession *session;
   struct mwServiceAware *srvc_aware;
+  struct mwAwareList *aware_list;
   
   if(! PyArg_ParseTuple(args, "O", &sessobj))
     return NULL;
@@ -215,10 +230,12 @@ static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
   session = sessobj->session;
 
   /* create the im service and a single aware list */
-  srvc_aware = mwServiceAware_new(session);
-  self->data = mwAwareList_new(srvc_aware);
+  srvc_aware = mwServiceAware_new(session, &aware_handler);
+  aware_list = mwAwareList_new(srvc_aware, &aware_list_handler);
+  mwAwareList_setClientData(aware_list, self, NULL);
+
+  self->data = aware_list;
   self->cleanup = (GDestroyNotify) mwAwareList_free;
-  mwAwareList_setOnAware(self->data, onAwareHandler, self, NULL);
 
   /* create a python wrapper service built around this instance */
   /* sets self->wrapper and self->service */

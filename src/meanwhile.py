@@ -88,7 +88,8 @@ from _meanwhile import \
 
 # resolve options
 from _meanwhile import \
-     RESOLVE_UNIQUE, RESOLVE_FIRST, RESOLVE_ALL_DIRS, RESOLVE_USERS
+     RESOLVE_UNIQUE, RESOLVE_FIRST, RESOLVE_ALL_DIRS, \
+     RESOLVE_USERS, RESOLVE_GROUPS
 
 
 # resolve result codes

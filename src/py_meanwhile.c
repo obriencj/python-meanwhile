@@ -110,6 +110,7 @@ PyMODINIT_FUNC init_meanwhile() {
   INT_CONSTANT(m, "RESOLVE_FIRST", mwResolveFlag_FIRST);
   INT_CONSTANT(m, "RESOLVE_ALL_DIRS", mwResolveFlag_ALL_DIRS);
   INT_CONSTANT(m, "RESOLVE_USERS", mwResolveFlag_USERS);
+  INT_CONSTANT(m, "RESOLVE_GROUPS", mwResolveFlag_GROUPS);
 
   /* resolve result codes */
   INT_CONSTANT(m, "RESOLVED_SUCCESS", mwResolveCode_SUCCESS);

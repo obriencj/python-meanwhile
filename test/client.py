@@ -89,7 +89,6 @@ class ClientServiceAware(meanwhile.ServiceAware):
 
 
     def _zoom_check(self, iter, id):
-        print "_zoom_check", iter, id
         zid = self.store.get_value(iter, 0)
         return zid < id[0]
 

@@ -29,6 +29,7 @@
 #include <mw_srvc_im.h>
 
 #include "py_meanwhile.h"
+#include "mw_error.h"
 #include "mw_debug.h"
 
 
@@ -415,11 +416,11 @@ static PyObject *py_convo_close(mwPyService *self, PyObject *args) {
   struct mwIdBlock id = { 0, 0 };
   struct mwServiceIm *srvc_im;
   struct mwConversation *conv;
-  guint32 err;
+  guint32 err = ERR_SUCCESS;
 
   PyObject *a, *b;
 
-  if(! PyArg_ParseTuple(args, "(OO)l", &a, &b, &err))
+  if(! PyArg_ParseTuple(args, "(OO)|l", &a, &b, &err))
     return NULL;
 
   id.user = (char *) PyString_SafeAsString(a);

@@ -18,7 +18,7 @@ test -z "${dir}" && dir=.
 
 CONFIG="${dir}/test.conf"
 SCRIPT="${dir}/test.py"
-
+CLIENT="${dir}/client.py"
 
 
 quiet_test() {
@@ -82,6 +82,7 @@ compiled.
  Options:
     test.sh help      prints this helpful message
     test.sh           run the python interpreter and test bot
+    test.sh client    run the pygtk test client
     test.sh debug     run the python interpreter and test bot from gdb
     test.sh pydoc     get pydoc information
     test.sh valgrind  run the python interpreter and test bot in valgrind
@@ -128,6 +129,11 @@ elif test "$1" = "valgrind" ; then
 elif test "$1" = "pydoc" ; then
     shift
     "$PYTHON" -c "import pydoc; pydoc.cli();" $*
+
+# test client
+elif test "$1" = "client" ; then
+    ECHO "$PYTHON $CLIENT"
+    "$PYTHON" "$CLIENT"
 
 # test bot
 else

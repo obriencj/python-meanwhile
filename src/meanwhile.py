@@ -196,6 +196,10 @@ class SocketSession(Session):
             self._recvLoop()
 
 
+    def stop(self, reason=0):
+        Session.stop(self, reason)
+
+
     def getThread(self):
 
         ''' the thread that the read loop is being executed in '''

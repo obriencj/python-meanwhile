@@ -1,3 +1,6 @@
+##############################################################################
+# simple python gtk client test script
+##############################################################################
 
 
 import gobject
@@ -13,20 +16,44 @@ class ClientServiceAware(meanwhile.ServiceAware):
     def __init__(self, session):
         meanwhile.ServiceAware.__init__(self, session)
         
+        store = self._make_store()
+
+        view = self._make_view(store)
+        view.connect("button-press-event", self._press_cb)
+
+        scroll = gtk.ScrolledWindow()
+        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scroll.add(view)
+        
         window = gtk.Window()
         window.set_title("Meanwhile")
         window.connect("destroy", self._destroy_cb)
         window.resize(150, 300)
-        
-        store = self._make_store()
-        view = self._make_view(store)
 
-        window.add(view)
+        window.add(scroll)
         
         self.window = window
         self.store = store
         self.view = view
 
+
+    def _double_click_cb(self, widget):
+        sel = widget.get_selection()
+        iter = sel.get_selected()[1]
+        
+        if not iter:
+            return
+        
+        id = self.store.get_value(iter, 0)
+        who = (id, None)
+        window = self.session.srvc_im._ensure_convo(who)
+        window.show_all() 
+
+
+    def _press_cb(self, widget, button, *k):
+        if button.type == 5:
+            self._double_click_cb(widget)
+            
 
     def _destroy_cb(self, *kw):
         self.session.stop()
@@ -62,6 +89,7 @@ class ClientServiceAware(meanwhile.ServiceAware):
 
 
     def _zoom_check(self, iter, id):
+        print "_zoom_check", iter, id
         zid = self.store.get_value(iter, 0)
         return zid < id[0]
 
@@ -80,10 +108,10 @@ class ClientServiceAware(meanwhile.ServiceAware):
         iter = self._zoom_to(id)
         data = [id[0], 'Offline']
         
-        if iter:
-            self.store.insert_before(None, iter, data)
-        else:
+        if not iter:
             self.store.append(None, data)
+        elif self.store.get_value(iter, 0) != id[0]:
+            self.store.insert_before(None, iter, data)
 
 
     def add(self, id):
@@ -153,24 +181,45 @@ class ClientServiceIm(meanwhile.ServiceIm):
                 try:
                     act[0](self, who, act[1])
                 except Exception, e:
-                    print "exception clearing IM queue: %s" % e
+                    print >> sys.stderr, "exception clearing IM queue: %s" % e
             del q[who]
 
 
     def _open_convo(self, who):
-        window = gtk.Window()
-        window.set_title(who[0])
-        window.connect("destroy", self._destroy_cb)
-        window.resize(300, 200)
-
+        
         buffer = gtk.TextBuffer()
-
+                
         output = gtk.TextView(buffer)
         output.set_wrap_mode(gtk.WRAP_WORD)
         output.set_editable(gtk.FALSE)
         output.set_cursor_visible(gtk.FALSE)
+        output.unset_flags(gtk.CAN_FOCUS)
 
-        window.add(output)
+        scroll = gtk.ScrolledWindow()
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
+        scroll.unset_flags(gtk.CAN_FOCUS)
+        scroll.add(output)
+        
+        input = gtk.Entry()
+        input.set_flags(gtk.CAN_FOCUS)
+
+        button = gtk.Button("send")
+        button.connect_object("clicked", self._on_send, input, who)
+        button.set_flags(gtk.CAN_DEFAULT)
+
+        hbox = gtk.HBox()
+        hbox.pack_start(input)
+        hbox.pack_end(button, expand=gtk.FALSE)
+
+        vbox = gtk.VBox()
+        vbox.pack_start(scroll)
+        vbox.pack_end(hbox, expand=gtk.FALSE)        
+
+        window = gtk.Window()
+        window.set_title(who[0])
+        window.connect("destroy", self._destroy_cb)
+        window.resize(300, 200)
+        window.add(vbox)
 
         window.mw_user = who
         window.mw_buffer = buffer
@@ -178,24 +227,44 @@ class ClientServiceIm(meanwhile.ServiceIm):
 
         self._convos[who] = window
         window.show_all()
+
+        button.grab_default()
+        input.grab_focus()
         
         return window
+
+
+    def _ensure_convo(self, who):
+        print "_ensure_convo", who
+        
+        window = self._convos.get(who)
+        if not window:
+            window = self._open_convo(who)
+        return window
+
+
+    def _on_send(self, widget, who):
+        txt = widget.get_text().strip()
+        if txt:
+            self.sendText(who, txt)
+            window = self._ensure_convo(who)
+            self._append_convo(window, self.session._id, txt)
+
+        widget.set_text('')
+        widget.grab_focus()
 
 
     def _destroy_cb(self, win, *k):
         who = win.mw_user
         
-        print "let's close the conversation with (%s,%s)" % who
         self.closeConversation(who)
         del self._convos[who]
-
+        
 
     def onOpened(self, who):
-        print '<opened>%s' % who[0]
+        print '<opened>', who
         self._runqueue(who)
-        
-        if not self._convos.get(who):
-            self._open_convo(who)
+        self._ensure_convo(who)
 
         who = (who[0], who[1], meanwhile.AWARE_USER)
         self.session.srvc_aware.add([who])
@@ -206,17 +275,20 @@ class ClientServiceIm(meanwhile.ServiceIm):
         self._delqueue(who)
 
 
-    def _append_convo(self, who, text):
-        window = self._convos.get(who)
-        if not window:
-            window = self._open_convo(who)
+    def _append_convo(self, window, who, text):
 
         buf = window.mw_buffer
-        end = buf.get_bounds()[1]
+        end = buf.get_end_iter()
         buf.insert(end, "%s : %s\n" % (who[0], text))
-        end = buf.get_bounds()[1]
-        window.mw_view.scroll_to_iter(end, 0.0)
-            
+
+        mark = buf.get_mark('end')
+        if mark:
+            buf.move_mark(mark, end)
+        else:
+            mark = buf.create_mark('end', end, left_gravity=gtk.FALSE)
+        
+        window.mw_view.scroll_mark_onscreen(mark)
+        
 
     def sendText(self, who, text):
         state = self.conversationState(who)
@@ -260,7 +332,8 @@ class ClientServiceIm(meanwhile.ServiceIm):
 
     def onText(self, who, text):
         print '<text>%s: "%s"' % (who[0], text)
-        self._append_convo(who, text)
+        window = self._ensure_convo(who)
+        self._append_convo(window, who, text)
 
 
     def onHtml(self, who, text):

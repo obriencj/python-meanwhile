@@ -23,10 +23,11 @@
 
 #include <glib.h>
 
+#include <mw_common.h>
+#include <mw_service.h>
+#include <mw_srvc_aware.h>
+
 #include "py_meanwhile.h"
-#include "../mw_common.h"
-#include "../mw_service.h"
-#include "../mw_srvc_aware.h"
 
 
 #define ON_AWARE  "onAware"

@@ -33,6 +33,19 @@ AC_C_CONST
 AC_STRUCT_TM
 
 
+# tell pkgconfig to look in the same prefix we're installing this to,
+# as that's likely where meanwhile will be found if it's not in the
+# default pkgconfig path
+
+PREFIX=$ac_default_prefix
+if test "$prefix" != "NONE"; then
+   PREFIX=$prefix
+fi
+
+PKG_CONFIG_PATH="$PKG_CONFIG_PATH":"$PREFIX/lib/pkgconfig"
+export PKG_CONFIG_PATH
+
+
 dnl Debugging option
 AC_ARG_ENABLE(debug,
 	[  --enable-debug	  compile with debugging support],
@@ -59,79 +72,76 @@ withval="auto"
 AC_ARG_WITH(python,
 	[  --with-python[=auto]   compile Python wrappers for Meanwhile])
 
-if test "$withval" != "no" ; then
-
-	dnl Check 1: Python binary
-	if test "$withval" = "auto" ; then
-		AC_PATH_PROG(pythonpath, python)
-		if test "_$pythonpath" = _ ; then
-			AC_MSG_ERROR(no python found)
-		fi
-	else
-		pythonpath="$withval"
+dnl Check 1: Python binary
+if test "$withval" = "auto" ; then
+	AC_PATH_PROG(pythonpath, python)
+	if test "_$pythonpath" = _ ; then
+		AC_MSG_ERROR(no python found)
 	fi
-
-	PYTHON="$pythonpath"
-	AC_SUBST(PYTHON)
+else
+	pythonpath="$withval"
 fi
 
-if test "$withval" != "no" ; then
-
-	dnl Check 2: Python version
-	AC_MSG_CHECKING(Python version)
-	PYTHON_FOUND_VERSION=`$pythonpath -c 'import distutils.sysconfig; print "%s" % distutils.sysconfig.get_config_var("VERSION")' 2>/dev/null`
-
-	if test "$PYTHON_FOUND_VERSION" = "" ; then
-		AC_MSG_ERROR([unable to determine version])
-	else
-
-		# TODO: put in a check against PYTHON_FOUND_VERSION and
-		# python_required_version to make sure we meet the minimum
-		# requirements
-
-		AC_MSG_RESULT($PYTHON_FOUND_VERSION)
-		#PYTHON_VERSION=python_required_version
-		PYTHON_VERSION=$PYTHON_FOUND_VERSION
-		AC_SUBST(PYTHON_VERSION)
-	fi
-
-	dnl Check 3: Python CFLAGS
-	AC_MSG_CHECKING(for Python compile flags)
-	PYTHON_CFLAGS=`$pythonpath -c 'import distutils.sysconfig; print "-I%s" % distutils.sysconfig.get_python_inc()' 2>/dev/null`
-
-	if test "$PYTHON_CFLAGS" = "" ; then
-		AC_MSG_ERROR(not found)
-	else
-		AC_MSG_RESULT($PYTHON_CFLAGS)
-		AC_SUBST(PYTHON_CFLAGS)
-	fi
+PYTHON="$pythonpath"
+AC_SUBST(PYTHON)
 
 
-	dnl Check 4: Python LIBS
-	AC_MSG_CHECKING(for Python linker flags)
-	PYTHON_LIBP=`$pythonpath -c 'import distutils.sysconfig; print "%s" % distutils.sysconfig.get_config_var("LIBP")' 2>/dev/null`
+dnl Check 2: Python version
+AC_MSG_CHECKING(Python version)
+PYTHON_FOUND_VERSION=`$pythonpath -c 'import distutils.sysconfig; print "%s" % distutils.sysconfig.get_config_var("VERSION")' 2>/dev/null`
 
-	PYTHON_LIBS=`$pythonpath -c 'import distutils.sysconfig; print "-L%s %s" % (distutils.sysconfig.get_config_var("LIBP"), distutils.sysconfig.get_config_var("LIBS"))' 2>/dev/null`
+if test "$PYTHON_FOUND_VERSION" = "" ; then
+	AC_MSG_ERROR([unable to determine version])
+else
 
-	if test "$PYTHON_LIBS" = "" ; then
-		AC_MSG_ERROR(not found)
-	else
+	# TODO: put in a check against PYTHON_FOUND_VERSION and
+	# python_required_version to make sure we meet the minimum
+	# requirements
 
-		if test `uname` = "Darwin" ; then
-			PYTHON_LIBS="-framework Python $PYTHON_LIBS"
-		fi
-
-		AC_MSG_RESULT($PYTHON_LIBS)
-		AC_SUBST(PYTHON_LIBS)
-		AC_SUBST(PYTHON_LIBP)
-	fi
-
-	WITH_PYTHON_SUBPACKAGE=1
-	AC_SUBST(WITH_PYTHON_SUBPACKAGE)
-
-	WITH_PYTHON_SUBDIR="python"
-	AC_SUBST(WITH_PYTHON_SUBDIR)
+	AC_MSG_RESULT($PYTHON_FOUND_VERSION)
+	#PYTHON_VERSION=python_required_version
+	PYTHON_VERSION=$PYTHON_FOUND_VERSION
+	AC_SUBST(PYTHON_VERSION)
 fi
+
+
+dnl Check 3: Python CFLAGS
+AC_MSG_CHECKING(for Python compile flags)
+PYTHON_CFLAGS=`$pythonpath -c 'import distutils.sysconfig; print "-I%s" % distutils.sysconfig.get_python_inc()' 2>/dev/null`
+
+if test "$PYTHON_CFLAGS" = "" ; then
+	AC_MSG_ERROR(not found)
+else
+	AC_MSG_RESULT($PYTHON_CFLAGS)
+	AC_SUBST(PYTHON_CFLAGS)
+fi
+
+
+dnl Check 4: Python LIBS
+AC_MSG_CHECKING(for Python linker flags)
+PYTHON_LIBP=`$pythonpath -c 'import distutils.sysconfig; print "%s" % distutils.sysconfig.get_config_var("LIBP")' 2>/dev/null`
+
+PYTHON_LIBS=`$pythonpath -c 'import distutils.sysconfig; print "-L%s %s" % (distutils.sysconfig.get_config_var("LIBP"), distutils.sysconfig.get_config_var("LIBS"))' 2>/dev/null`
+
+if test "$PYTHON_LIBS" = "" ; then
+	AC_MSG_ERROR(not found)
+else
+
+	if test `uname` = "Darwin" ; then
+		PYTHON_LIBS="-framework Python $PYTHON_LIBS"
+	fi
+
+	AC_MSG_RESULT($PYTHON_LIBS)
+	AC_SUBST(PYTHON_LIBS)
+	AC_SUBST(PYTHON_LIBP)
+fi
+
+WITH_PYTHON_SUBPACKAGE=1
+AC_SUBST(WITH_PYTHON_SUBPACKAGE)
+
+WITH_PYTHON_SUBDIR="python"
+AC_SUBST(WITH_PYTHON_SUBDIR)
+
 
 
 dnl Glib-2.0 option with some version detection for compat.h
@@ -142,6 +152,15 @@ GLIB_VERSION=glib_required_version
 AC_SUBST(GLIB_VERSION)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+
+dnl Meanwhile required, of course
+PKG_CHECK_MODULES(MEANWHILE, meanwhile,
+	[AC_DEFINE(HAVE_MEANWHILE, 1, [We've found meanwhile])]
+)
+
+AC_SUBST(MEANWHILE_CFLAGS)
+AC_SUBST(MEANWHILE_LIBS)
 
 
 AC_CONFIG_FILES(

@@ -23,8 +23,9 @@
 
 #include <glib.h>
 
+#include <mw_service.h>
+
 #include "py_meanwhile.h"
-#include "../mw_service.h"
 
 
 #define GET_NAME  "getName"

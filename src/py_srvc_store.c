@@ -23,11 +23,12 @@
 
 #include <glib.h>
 
+#include <mw_common.h>
+#include <mw_service.h>
+#include <mw_srvc_store.h>
+
 #include "py_meanwhile.h"
-#include "../mw_common.h"
-#include "../mw_debug.h"
-#include "../mw_service.h"
-#include "../mw_srvc_store.h"
+#include "mw_debug.h"
 
 
 enum cb_type {

@@ -25,11 +25,12 @@
 #include <glib/ghash.h>
 #include <string.h>
 
+#include <mw_common.h>
+#include <mw_service.h>
+#include <mw_srvc_conf.h>
+
 #include "py_meanwhile.h"
-#include "../mw_common.h"
-#include "../mw_debug.h"
-#include "../mw_service.h"
-#include "../mw_srvc_conf.h"
+#include "mw_debug.h"
 
 
 #define ON_TEXT       "onText"

@@ -20,12 +20,13 @@
 
 #include <Python.h>
 #include "py_meanwhile.h"
-#include "../mw_service.h"
-#include "../mw_session.h"
-#include "../mw_srvc_aware.h"
-#include "../mw_srvc_conf.h"
-#include "../mw_srvc_im.h"
-#include "../mw_srvc_resolve.h"
+
+#include <mw_service.h>
+#include <mw_session.h>
+#include <mw_srvc_aware.h>
+#include <mw_srvc_conf.h>
+#include <mw_srvc_im.h>
+#include <mw_srvc_resolve.h>
 
 
 #ifndef PyMODINIT_FUNC

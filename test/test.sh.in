@@ -17,7 +17,7 @@ dir=`dirname $0`
 test -z "${dir}" && dir=.
 
 CONFIG="${dir}/test.conf"
-SCRIPT="${dir}/src/python/test.py"
+SCRIPT="${dir}/test.py"
 
 
 
@@ -104,7 +104,7 @@ if test `uname` = "Darwin" ; then
 	ECHO "DYLD_LIBRARY_PATH is" $DYLD_LIBRARY_PATH
 fi
 
-PYTHONPATH="${dir}/src/python/.libs":"${dir}/src/python":$PYTHONPATH
+PYTHONPATH="${dir}/../src/.libs":"${dir}/../src/":$PYTHONPATH
 export PYTHONPATH
 ECHO "PYTHONPATH is" $PYTHONPATH
 
@@ -120,7 +120,7 @@ elif test "$1" = "valgrind" ; then
 	ECHO "valgrind $* $PYTHON $SCRIPT"
 	valgrind $* "$PYTHON" "$SCRIPT"
     else
-	ECHO "valgrind not found in \$PATH"
+	ECHO "no 'valgrind' found in $PATH"
 	exit 1
     fi
 

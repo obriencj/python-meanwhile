@@ -1,0 +1,7 @@
+*.pyc
+*.lo
+UNDERSCORE_meanwhile*
+.libs
+.deps
+Makefile
+Makefile.in

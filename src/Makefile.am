@@ -55,3 +55,13 @@ install-data-hook:
 		mv $$F `echo $$F | sed s/UNDERSCORE//` ; \
           done )
 
+
+clean-pyc:
+	( rm -f src/*.pyc )
+
+
+all-local:	clean-pyc
+
+
+clean-local:	clean-pyc
+

@@ -9,7 +9,6 @@ python_SCRIPTS = meanwhile.py
 
 noinst_HEADERS = py_meanwhile.h
 
-noinst_SCRIPTS = test.py
 
 UNDERSCORE_meanwhile_la_SOURCES = \
 	py_meanwhile.c \
@@ -25,18 +24,19 @@ UNDERSCORE_meanwhile_la_SOURCES = \
 UNDERSCORE_meanwhile_la_CFLAGS = \
 	-Wall -Werror -Wno-format \
 	$(DEBUG_CFLAGS) \
-	$(GLIB_CFLAGS) $(PYTHON_CFLAGS)
+	$(GLIB_CFLAGS) \
+	$(MEANWHILE_CFLAGS) $(PYTHON_CFLAGS)
 
 UNDERSCORE_meanwhile_la_LDFLAGS = \
 	-module -avoid-version \
 	@os_ld_flags_python@
 
 UNDERSCORE_meanwhile_la_LIBADD = \
-	$(GLIB_LIBS) $(PYTHON_LIBS) \
-	-L../ -lmeanwhile
+	$(GLIB_LIBS) \
+	$(MEANWHILE_LIBS) $(PYTHON_LIBS)
 
 AM_CPPFLAGS = \
-	-DG_LOG_DOMAIN=\"@PACKAGE@-python\"
+	-DG_LOG_DOMAIN=\"@PACKAGE@\"
 
 
 noinst_DATA = .libs/renamed

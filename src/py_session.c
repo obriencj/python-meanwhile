@@ -160,8 +160,8 @@ static PyObject *py_start(mwPySession *self, PyObject *args) {
   user = (char *) PyString_SafeAsString(uo);
   pass = (char *) PyString_SafeAsString(po);
 
-  mwSession_setProperty(self->session, PROPERTY_SESSION_USER_ID, user, NULL);
-  mwSession_setProperty(self->session, PROPERTY_SESSION_PASSWORD, pass, NULL);
+  mwSession_setProperty(self->session, mwSession_AUTH_USER_ID, user, NULL);
+  mwSession_setProperty(self->session, mwSession_AUTH_PASSWORD, pass, NULL);
 
   mwSession_start(self->session);
   mw_return_none();

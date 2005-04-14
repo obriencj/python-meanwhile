@@ -75,15 +75,19 @@ def _cbLoad(who, kstr):
     if not tSrvcStore:
         tSrvcIm.sendText(who, "storage service not initialized")
         return
+
+    key = 0
+    l = lambda k,r,v,w=who: _cbLoadStr(w, k, r, v)
     
     try:
         key = int(kstr)
-        l = lambda k,r,v,w=who: _cbLoadStr(w, k, r, v)
         tSrvcStore.loadString(key, l)
-        tSrvcIm.sendText(who, "requesting load of key 0x%x" % key)
 
     except:
         tSrvcIm.sendText(who, 'key "%s" is invalid' % kstr)
+
+    else:
+        tSrvcIm.sendText(who, "requesting load of key 0x%x" % key)
 
 
 
@@ -106,14 +110,19 @@ def _cbResolve(who, kstr):
 
     ''' initiates a resolve request '''
 
+    ser = 0
+    cb = lambda id,c,r,w=who: _cbResolved(w,id,c,r)
+    flags = meanwhile.RESOLVE_USERS + meanwhile.RESOLVE_GROUPS
+    
     try:
-        cb = lambda id,c,r,w=who: _cbResolved(w,id,c,r)
-        s = tSrvcResolve.resolve([kstr], meanwhile.RESOLVE_USERS +
-                                 meanwhile.RESOLVE_GROUPS, cb)
-        tSrvcIm.sendText(who, "initiated resolve request 0x%04x" % s)
-        
+        ser = tSrvcResolve.resolve([kstr], flags, cb)
+
     except Exception, e:
         tSrvcIm.sendText(who, "exception: %s" % e)
+
+    else:
+        tSrvcIm.sendText(who, "initiated resolve request 0x%04x" % ser)
+
 
 
 class TestSession(meanwhile.SocketSession):
@@ -132,6 +141,7 @@ class TestServiceIm(meanwhile.ServiceIm):
     def __init__(self, session):
         meanwhile.ServiceIm.__init__(self, session)
         self._send_queue = {}
+        self.clientType = meanwhile.IM_CLIENT_NOTESBUDDY
 
     
     def processCmd(self, who, text):
@@ -286,6 +296,16 @@ shutdown\n\tshuts the bot down'''
         from StringIO import StringIO
         
         print '<mime>%s' % who[0]
+
+        try:
+            # first, write it to the mime tmp file
+            f = open("tmp.mime", 'w')
+            f.write(data)
+            f.close()
+        except Exception, e:
+            print >> sys.stderr, e
+        
+        # second, parse and display
         msg = Parser().parsestr(data)
 
         html = StringIO()  # combined text segments

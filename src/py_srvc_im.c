@@ -243,7 +243,7 @@ static PyObject *py_send_text(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_findConversation(srvc_im, &id);
   
-  if(!conv || !MW_CONVO_IS_OPEN(conv)) {
+  if(!conv || !mwConversation_isOpen(conv)) {
     mw_raise("conversation not currently open", NULL);
   } else if(! mwConversation_supports(conv, mwImSend_PLAIN)) {
     mw_raise("conversation does not support sending plain text", NULL);
@@ -276,7 +276,7 @@ static PyObject *py_send_html(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_findConversation(srvc_im, &id);
 
-  if(!conv || !MW_CONVO_IS_OPEN(conv)) {
+  if(!conv || !mwConversation_isOpen(conv)) {
     mw_raise("conversation not currently open", NULL);
   } else if(! mwConversation_supports(conv, mwImSend_HTML)) {
     mw_raise("conversation does not support sending HTML", NULL);
@@ -308,7 +308,7 @@ static PyObject *py_send_mime(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_findConversation(srvc_im, &id);
 
-  if(!conv || !MW_CONVO_IS_OPEN(conv)) {
+  if(!conv || !mwConversation_isOpen(conv)) {
     mw_raise("conversation not currently open", NULL);
   } else if(! mwConversation_supports(conv, mwImSend_MIME)) {
     mw_raise("conversation does not support sending MIME", NULL);
@@ -340,7 +340,7 @@ static PyObject *py_send_subject(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_findConversation(srvc_im, &id);
 
-  if(!conv || !MW_CONVO_IS_OPEN(conv)) {
+  if(!conv || !mwConversation_isOpen(conv)) {
     mw_raise("conversation not currently open", NULL);
   } else if(! mwConversation_supports(conv, mwImSend_SUBJECT)) {
     mw_raise("conversation does not support subjects", NULL);
@@ -372,7 +372,7 @@ static PyObject *py_send_typing(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_findConversation(srvc_im, &id);
 
-  if(!conv || !MW_CONVO_IS_OPEN(conv)) {
+  if(!conv || !mwConversation_isOpen(conv)) {
     mw_raise("conversation not currently open", NULL);
   } else if(! mwConversation_supports(conv, mwImSend_TYPING)) {
     mw_raise("conversation does not support typing notification", NULL);
@@ -403,7 +403,7 @@ static PyObject *py_convo_open(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_getConversation(srvc_im, &id);
 
-  if(! MW_CONVO_IS_CLOSED(conv)) {
+  if(! mwConversation_isClosed(conv)) {
     mw_raise("conversation is already open or pending", NULL);
   } else {
     mwConversation_open(conv);
@@ -429,7 +429,7 @@ static PyObject *py_convo_close(mwPyService *self, PyObject *args) {
   srvc_im = (struct mwServiceIm *) self->wrapped;
   conv = mwServiceIm_findConversation(srvc_im, &id);
 
-  if(!conv || MW_CONVO_IS_CLOSED(conv)) {
+  if(!conv || mwConversation_isClosed(conv)) {
     mw_raise("conversation is not open or pending", NULL);
   } else {
     /** @todo maybe want to free the conversation as well, unsure */

@@ -90,7 +90,7 @@ static void mw_got_html(struct mwServiceIm *srvc,
 
 
 static void mw_got_mime(struct mwServiceIm *srvc,
-			struct mwIdBlock *from, struct mwOpaque *mime) {
+			struct mwIdBlock *from, const char *mime) {
 
   struct pyObj_mwService *self;
   PyObject *robj = NULL;
@@ -100,7 +100,7 @@ static void mw_got_mime(struct mwServiceIm *srvc,
 
   a = PyString_SafeFromString(from->user);
   b = PyString_SafeFromString(from->community);
-  c = PyBuffer_FromMemory(mime->data, mime->len);
+  c = PyString_SafeFromString(mime);
 
   robj = PyObject_CallMethod((PyObject *) self, ON_MIME,
 			     "(NN)N", a, b, c);
@@ -164,7 +164,7 @@ static void mw_conversation_recv(struct mwConversation *conv,
     mw_got_html(srvc, idb, msg);
     break;
   case mwImSend_MIME:
-    mw_got_mime(srvc, idb, (struct mwOpaque *) msg);
+    mw_got_mime(srvc, idb, msg);
     break;
   case mwImSend_SUBJECT:
     mw_got_subject(srvc, idb, msg);

@@ -26,12 +26,10 @@
 
 
 /* place-holders */
-struct mwChannel;
 struct mwService;
 struct mwSession;
 
 
-typedef struct pyObj_mwChannel mwPyChannel;
 typedef struct pyObj_mwService mwPyService;
 typedef struct pyObj_mwSession mwPySession;
 
@@ -40,25 +38,6 @@ typedef struct pyObj_mwSession mwPySession;
     specialty service which wraps calls to common mwService methods to an
     underlying Python object or another mwService */
 struct mwServicePyWrap;
-
-
-struct pyObj_mwChannel {
-  PyObject_HEAD;
-  struct mwChannel *channel;
-  mwPySession *session;
-};
-
-
-/** static instance of the type for mwPyChannel objects. */
-PyTypeObject *mwPyChannel_type();
-
-
-#define mwPyChannel_check(obj) \
-  PyObject_IsInstance((obj), (PyObject *) mwPyChannel_type())
-
-
-/** instantiate a mwPyChannel wrapping a given mwChannel. */
-mwPyChannel *mwPyChannel_wrap(mwPySession *sess, struct mwChannel *chan);
 
 
 struct pyObj_mwService {

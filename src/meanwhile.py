@@ -208,5 +208,16 @@ class SocketSession(Session):
         return self._thread
 
 
+#class FileTransfer():
+#    def __init__(self, srvc_ft):
+#        self.srvc = srvc_ft
+    
+
+
+#class ServiceFileTransfer(_meanwhile.ServiceFileTransfer):
+#    def __init__(self, session):
+#        _meanwhile.ServiceFileTransfer.__init__(self, session)
+    
+    
 
 # The End.

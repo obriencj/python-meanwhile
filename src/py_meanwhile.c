@@ -119,7 +119,6 @@ PyMODINIT_FUNC init_meanwhile() {
   INT_CONSTANT(m, "RESOLVED_BAD_FORMAT", mwResolveCode_BAD_FORMAT);
 
   /* basic classes */
-  PyModule_AddObject(m, "Channel", (PyObject *) mwPyChannel_type());
   PyModule_AddObject(m, "Service", (PyObject *) mwPyService_type());
   PyModule_AddObject(m, "Session", (PyObject *) mwPySession_type());
 

@@ -23,7 +23,9 @@
 
 #include <glib.h>
 
+#include <mw_channel.h>
 #include <mw_service.h>
+#include <mw_session.h>
 
 #include "py_meanwhile.h"
 
@@ -248,20 +250,21 @@ static PyObject *py_stopped(mwPyService *self) {
 
 static PyObject *py_recv(mwPyService *self, PyObject *args) {
   struct mwService *srvc = self->wrapped;
+  guint32 chan, type;
+  struct mwOpaque o = { 0, 0 };
+
+  if(! PyArg_ParseTuple(args, "llt#", &chan, &type, &o.data, &o.len))
+    return NULL;
 
   if(srvc) {
-    mwPyChannel *chan;
-    struct mwOpaque o = { 0, 0 };
-    guint32 type;
+    struct mwSession *session;
+    struct mwChannel *channel;
+    
+    /* XXX check these and raise as necessary */
+    session = mwService_getSession(srvc);
+    channel = mwChannel_find(mwSession_getChannels(session), chan);
 
-    if(! PyArg_ParseTuple(args, "Oit#", &chan, &type, &o.data, &o.len))
-      return NULL;
-
-    if(! PyObject_IsInstance((PyObject *) chan,
-			     (PyObject *) mwPyChannel_type()))
-      return NULL;
-
-    mwService_recv(srvc, chan->channel, type, &o);
+    mwService_recv(srvc, channel, type, &o);
   }
 
   mw_return_none();

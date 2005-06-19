@@ -1,6 +1,6 @@
 
 # version of meanwhile
-m4_define(meanwhile_version,		0.4.1cvs)
+m4_define(meanwhile_version,		0.4.3cvs)
 
 # required and compat version of glib2.
 m4_define(glib_required_version,	2.0.0)
@@ -46,13 +46,13 @@ PKG_CONFIG_PATH="$PKG_CONFIG_PATH":"$PREFIX/lib/pkgconfig"
 export PKG_CONFIG_PATH
 
 
-dnl Debugging option
+# Debugging option
 AC_ARG_ENABLE(debug,
 	[  --enable-debug	  compile with debugging support],
 	AC_DEFINE(DEBUG, 1, [Define if debugging is enabled.]), )
 
 
-dnl Darwin...
+# Darwin...
 if test `uname` = "Darwin" ; then
 	os_so_ext=".dylib"
 	os_ld_flags="-dynamic-lib"
@@ -67,12 +67,12 @@ AC_SUBST(os_ld_flags)
 AC_SUBST(os_ld_flags_python)
 
 
-dnl Python wrapper option
+# Python wrapper option
 withval="auto"
 AC_ARG_WITH(python,
 	[  --with-python[=auto]   compile Python wrappers for Meanwhile])
 
-dnl Check 1: Python binary
+# Check 1: Python binary
 if test "$withval" = "auto" ; then
 	AC_PATH_PROG(pythonpath, python)
 	if test "_$pythonpath" = _ ; then
@@ -86,7 +86,7 @@ PYTHON="$pythonpath"
 AC_SUBST(PYTHON)
 
 
-dnl Check 2: Python version
+# Check 2: Python version
 AC_MSG_CHECKING(Python version)
 PYTHON_FOUND_VERSION=`$pythonpath -c 'import distutils.sysconfig; print "%s" % distutils.sysconfig.get_config_var("VERSION")' 2>/dev/null`
 
@@ -105,7 +105,7 @@ else
 fi
 
 
-dnl Check 3: Python CFLAGS
+# Check 3: Python CFLAGS
 AC_MSG_CHECKING(for Python compile flags)
 PYTHON_CFLAGS=`$pythonpath -c 'import distutils.sysconfig; print "-I%s" % distutils.sysconfig.get_python_inc()' 2>/dev/null`
 
@@ -117,7 +117,7 @@ else
 fi
 
 
-dnl Check 4: Python LIBS
+# Check 4: Python LIBS
 AC_MSG_CHECKING(for Python linker flags)
 PYTHON_LIBP=`$pythonpath -c 'import distutils.sysconfig; print "%s" % distutils.sysconfig.get_config_var("LIBP")' 2>/dev/null`
 
@@ -144,17 +144,15 @@ AC_SUBST(WITH_PYTHON_SUBDIR)
 
 
 
-dnl Glib-2.0 option with some version detection for compat.h
+# Glib-2.0
 AM_PATH_GLIB_2_0(glib_required_version, ,
 	AC_MSG_ERROR([*** GLib glib_required_version is required.])
  )
-GLIB_VERSION=glib_required_version
-AC_SUBST(GLIB_VERSION)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
 
-dnl Meanwhile required, of course
+# Meanwhile required, of course
 PKG_CHECK_MODULES(MEANWHILE, meanwhile,
 	[AC_DEFINE(HAVE_MEANWHILE, 1, [We've found meanwhile])]
 )

@@ -12,7 +12,6 @@ noinst_HEADERS = py_meanwhile.h
 
 UNDERSCORE_meanwhile_la_SOURCES = \
 	py_meanwhile.c \
-	py_channel.c \
 	py_service.c \
 	py_session.c \
 	py_srvc_aware.c \
@@ -22,7 +21,6 @@ UNDERSCORE_meanwhile_la_SOURCES = \
 	py_srvc_store.c
 
 UNDERSCORE_meanwhile_la_CFLAGS = \
-	-Wall -Werror -Wno-format \
 	$(DEBUG_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(MEANWHILE_CFLAGS) $(PYTHON_CFLAGS)

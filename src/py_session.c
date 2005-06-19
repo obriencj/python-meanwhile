@@ -191,7 +191,85 @@ static PyObject *py_recv(mwPySession *self, PyObject *args) {
 }
 
 
-static PyObject *py_find_channel(mwPySession *self, PyObject *args) {
+static PyObject *py_chan_create(mwPySession *self, PyObject *args) {
+  struct mwSession *s;
+  struct mwChannel *c;
+  
+  mwPyService *srvcobj;
+  guint32 proto_type, proto_ver;
+  struct mwOpaque o = { 0, 0 };
+  
+  if(! PyArg_ParseTuple(args, "Oll|t#",
+			&srvcobj, &proto_type, &proto_ver,
+			&o.data, &o.len)) {
+    return NULL;
+  }
+
+  s = self->session;
+  c = mwChannel_newOutgoing(mwSession_getChannels(s));
+
+  mwChannel_setService(c, srvcobj->wrapped);
+  mwChannel_setProtoType(c, proto_type);
+  mwChannel_setProtoVer(c, proto_ver);
+
+  if(o.len) {
+    struct mwOpaque *co = mwChannel_getAddtlCreate(c);
+    mwOpaque_clear(co);
+    co->data = o.data;
+    co->len = o.len;
+  }
+
+  if(mwChannel_create(c))
+    mw_raise("mwChannel_create error", NULL);
+
+  return PyInt_FromLong(mwChannel_getId(c));
+}
+
+
+static PyObject *py_chan_destroy(mwPySession *self, PyObject *args) {
+  guint32 id, reason = 0x00;
+  struct mwChannel *c;
+
+  /* XXX add opaque param */
+
+  if(! PyArg_ParseTuple(args, "l|l", &id, &reason))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  if(mwChannel_destroy(c, reason, NULL))
+    mw_raise("error while destroying channel", NULL);
+
+  mw_return_none();
+}
+
+
+static PyObject *py_chan_accept(mwPySession *self, PyObject *args) {
+  guint32 id;
+  struct mwChannel *c;
+  struct mwOpaque o = { 0, 0 };
+  struct mwOpaque *co;
+
+  if(! PyArg_ParseTuple(args, "l|t#", &id, &o.data, &o.len))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  co = mwChannel_getAddtlAccept(c);
+  mwOpaque_clear(co);
+  co->data = o.data;
+  co->len = o.len;
+
+  if(mwChannel_accept(c))
+    mw_raise("error while accepting channel", NULL);
+
+  mw_return_none();
+}
+
+
+static PyObject *py_chan_exists(mwPySession *self, PyObject *args) {
   guint32 id = 0;
   struct mwChannel *c;
 
@@ -199,12 +277,106 @@ static PyObject *py_find_channel(mwPySession *self, PyObject *args) {
     return NULL;
 
   c = mwChannel_find(mwSession_getChannels(self->session), id);
-  if(c) {
-    return (PyObject *) mwPyChannel_wrap(self, c);
+  return PyInt_FromLong(c != NULL);
+}
 
-  } else {
-    mw_return_none();
-  }
+
+static PyObject *py_chan_send(mwPySession *self, PyObject *args) {
+  guint32 id, type; 
+  struct mwOpaque o = { 0, 0 };
+  gboolean enc = TRUE;
+  struct mwChannel *c;
+  int ret;
+
+  if(! PyArg_ParseTuple(args, "llt#|l", &id, &type, &o.data, &o.len, &enc))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  ret = mwChannel_sendEncrypted(c, type, &o, enc);
+  return PyInt_FromLong(ret);
+}
+
+
+static PyObject *py_chan_get_status(mwPySession *self, PyObject *args) {
+  guint32 id = 0;
+  struct mwChannel *c;
+  enum mwChannelState state;
+
+  if(! PyArg_ParseTuple(args, "l", &id))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  state = mwChannel_getState(c);
+  return PyInt_FromLong(state);
+}
+
+
+static PyObject *py_chan_get_service(mwPySession *self, PyObject *args) {
+  guint32 id = 0;
+  struct mwChannel *c;
+  struct mwService *srvc;
+  PyObject *py_srvc;
+  
+  if(! PyArg_ParseTuple(args, "l", &id))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  srvc = mwChannel_getService(c);
+  if(! srvc) mw_raise("channel has no service", NULL);
+
+  py_srvc = mwService_getClientData(srvc);
+  if(! py_srvc) mw_raise("service has no python wrapping", NULL);
+
+  Py_INCREF(py_srvc);
+  return py_srvc;
+}
+
+
+static PyObject *py_chan_get_protocol(mwPySession *self, PyObject *args) {
+  guint32 id = 0;
+  struct mwChannel *c;
+  PyObject *t;
+  
+  if(! PyArg_ParseTuple(args, "l", &id))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  t = PyTuple_New(2);
+  PyTuple_SetItem(t, 0, PyInt_FromLong(mwChannel_getProtoType(c)));
+  PyTuple_SetItem(t, 1, PyInt_FromLong(mwChannel_getProtoVer(c)));
+
+  return t;
+}
+
+
+static PyObject *py_chan_get_user(mwPySession *self, PyObject *args) {
+  guint32 id = 0;
+  struct mwChannel *c;
+  struct mwLoginInfo *i;
+  PyObject *t;
+  
+  if(! PyArg_ParseTuple(args, "l", &id))
+    return NULL;
+
+  c = mwChannel_find(mwSession_getChannels(self->session), id);
+  if(! c) mw_raise("no such channel", NULL);
+
+  i = mwChannel_getUser(c);
+  if(! i) mw_raise("no user for channel", NULL);
+
+  t = PyTuple_New(2);
+  PyTuple_SetItem(t, 0, PyString_SafeFromString(i->user_id));
+  PyTuple_SetItem(t, 1, PyString_SafeFromString(i->community));
+
+  return t;
 }
 
 
@@ -300,26 +472,53 @@ static struct PyMethodDef tp_methods[] = {
     "override to handle login redirect messages" },
 
   /* real methods */
-  { "start", (PyCFunction) py_start,
-    METH_VARARGS, "start the session" },
+  { "start", (PyCFunction) py_start, METH_VARARGS,
+    "start the session" },
 
-  { "stop", (PyCFunction) py_stop,
-    METH_VARARGS, "stop the session" },
+  { "stop", (PyCFunction) py_stop, METH_VARARGS,
+    "stop the session" },
 
-  { "recv", (PyCFunction) py_recv,
-    METH_VARARGS, "pass incoming socket data to the session for processing" },
+  { "recv", (PyCFunction) py_recv, METH_VARARGS,
+    "pass incoming socket data to the session for processing" },
 
-  { "findChannel", (PyCFunction) py_find_channel,
-    METH_NOARGS, "reference a channel by its channel id" },
+  { "addService", (PyCFunction) py_add_service, METH_VARARGS,
+    "add a service to the sesssion" },
 
-  { "addService", (PyCFunction) py_add_service,
-    METH_VARARGS, "add a service to the sesssion" },
+  { "getService", (PyCFunction) py_get_service, METH_VARARGS,
+    "lookup a service by its ID" },
 
-  { "getService", (PyCFunction) py_get_service,
-    METH_VARARGS, "lookup a service by its ID" },
+  { "removeService", (PyCFunction) py_rem_service, METH_VARARGS,
+    "remove a service from the session by its ID" },
 
-  { "removeService", (PyCFunction) py_rem_service,
-    METH_VARARGS, "remove a service from the session by its ID" },
+  { "channelCreate", (PyCFunction) py_chan_create, METH_VARARGS,
+    "create a new channel for service with supplied version,"
+    " optional target tuple and optional opaque data. Channel"
+    " events will be passed to the supplied service for handling."
+    " Returns the new channel's ID" },
+
+  { "channelDestroy", (PyCFunction) py_chan_destroy, METH_VARARGS,
+    "destroy a channel by ID" },
+
+  { "channelAccept", (PyCFunction) py_chan_accept, METH_VARARGS,
+    "accept a new incoming channel with optional opaque data." },
+
+  { "channelExists", (PyCFunction) py_chan_exists, METH_VARARGS,
+    "check that a channel exists by ID" },
+
+  { "channelSend", (PyCFunction) py_chan_send, METH_VARARGS,
+    "send data on a channel ID" },
+
+  { "getChannelStatus", (PyCFunction) py_chan_get_status, METH_VARARGS,
+    "get the status of a channel by ID" },
+
+  { "getChannelService", (PyCFunction) py_chan_get_service, METH_VARARGS,
+    "reference the service owning a channel ID" },
+
+  { "getChannelProtocol", (PyCFunction) py_chan_get_protocol, METH_VARARGS,
+    "tuple of protocol type and version for a channel ID" },
+
+  { "getChannelUser", (PyCFunction) py_chan_get_user, METH_VARARGS,
+    "tuple of user, community of identity on other side of a channel ID" },
 
   { NULL },
 };

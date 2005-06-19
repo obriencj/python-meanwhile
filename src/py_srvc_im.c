@@ -42,15 +42,6 @@
 #define ON_OPENED   "onOpened"
 
 
-/*
-  Incoming IM message:
-  Session -> py_service -> Python -> py_srvc_im -> srvc_im -> handler -> Python
-
-  Outgoing IM message:
-  Python -> py_srvc_im -> srvc_im -> Session
-*/
-
-
 static void mw_got_text(struct mwServiceIm *srvc,
 			struct mwIdBlock *from, const char *text) {
 

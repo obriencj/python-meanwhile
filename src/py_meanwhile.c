@@ -25,6 +25,7 @@
 #include <mw_session.h>
 #include <mw_srvc_aware.h>
 #include <mw_srvc_conf.h>
+#include <mw_srvc_ft.h>
 #include <mw_srvc_im.h>
 #include <mw_srvc_resolve.h>
 
@@ -105,6 +106,20 @@ PyMODINIT_FUNC init_meanwhile() {
   INT_CONSTANT(m, "CONFERENCE_ERROR", mwConference_ERROR);
   INT_CONSTANT(m, "CONFERENCE_UNKNOWN", mwConference_UNKNOWN);
 
+  /* file transfer states */
+  INT_CONSTANT(m, "FT_NEW", mwFileTransfer_NEW);
+  INT_CONSTANT(m, "FT_PENDING", mwFileTransfer_PENDING);
+  INT_CONSTANT(m, "FT_OPEN", mwFileTransfer_OPEN);
+  INT_CONSTANT(m, "FT_CANCEL_LOCAL", mwFileTransfer_CANCEL_LOCAL);
+  INT_CONSTANT(m, "FT_CANCEL_REMOTE", mwFileTransfer_CANCEL_REMOTE);
+  INT_CONSTANT(m, "FT_DONE", mwFileTransfer_DONE);
+  INT_CONSTANT(m, "FT_ERROR", mwFileTransfer_ERROR);
+  INT_CONSTANT(m, "FT_UNKNOWN", mwFileTransfer_UNKNOWN);
+
+  /* file transfer closing codes */
+  INT_CONSTANT(m, "FT_SUCCESS", mwFileTransfer_SUCCESS);
+  INT_CONSTANT(m, "FT_REJECTED", mwFileTransfer_REJECTED);
+
   /* resolve options */
   INT_CONSTANT(m, "RESOLVE_UNIQUE", mwResolveFlag_UNIQUE);
   INT_CONSTANT(m, "RESOLVE_FIRST", mwResolveFlag_FIRST);
@@ -126,6 +141,8 @@ PyMODINIT_FUNC init_meanwhile() {
   PyModule_AddObject(m, "ServiceAware", (PyObject *) mwPyServiceAware_type());
   PyModule_AddObject(m, "ServiceConference",
 		     (PyObject *) mwPyServiceConference_type());
+  PyModule_AddObject(m, "ServiceFileTransfer",
+		     (PyObject *) mwPyServiceFileTransfer_type());
   PyModule_AddObject(m, "ServiceIm", (PyObject *) mwPyServiceIm_type());
   PyModule_AddObject(m, "ServiceResolve",
 		     (PyObject *) mwPyServiceResolve_type());

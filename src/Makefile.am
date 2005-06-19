@@ -16,6 +16,7 @@ UNDERSCORE_meanwhile_la_SOURCES = \
 	py_session.c \
 	py_srvc_aware.c \
 	py_srvc_conf.c \
+	py_srvc_ft.c \
 	py_srvc_im.c \
 	py_srvc_resolve.c \
 	py_srvc_store.c

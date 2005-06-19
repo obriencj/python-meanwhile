@@ -34,6 +34,7 @@ from _meanwhile import Channel
 from _meanwhile import Service
 from _meanwhile import ServiceAware
 from _meanwhile import ServiceConference
+from _meanwhile import ServiceFileTransfer
 from _meanwhile import ServiceIm
 from _meanwhile import ServiceResolve
 from _meanwhile import ServiceStorage
@@ -84,6 +85,17 @@ from _meanwhile import \
      CONFERENCE_NEW, CONFERENCE_PENDING, CONFERENCE_INVITED, \
      CONFERENCE_OPEN, CONFERENCE_CLOSING, CONFERENCE_ERROR, \
      CONFERENCE_UNKNOWN
+
+
+# file trasfer states
+from _meanwhile import \
+     FT_NEW, FT_PENDING, FT_OPEN, FT_CANCEL_LOCAL, FT_CANCEL_REMOTE, \
+     FT_DONE, FT_ERROR, FT_UNKNOWN
+
+
+# file transfer closing codes
+from _meanwhile import \
+     FT_SUCCESS, FT_REJECTED
 
 
 # resolve options

@@ -93,6 +93,16 @@ PyTypeObject *mwPyServiceConference_type();
   PyObject_IsInstance((obj),(PyObject *)  mwPyServiceConference_type())
 
 
+/** static instance of the type for mwPyServiceFileTransfer objects.
+    sub-type of mwPyService for wrapping a mwServiceFileTransfer
+    instance */
+PyTypeObject *mwPyServiceFileTransfer_type();
+
+
+#define mwPyServiceFileTransfer_check(obj) \
+  PyObject_IsInstance((obj), (PyObject *) mwPyServiceFileTransfer_type())
+
+
 /** static instance of the type for mwPyServiceIm objects. sub-type of
     mwPyService for wrapping a mwServiceIm instance */
 PyTypeObject *mwPyServiceIm_type();

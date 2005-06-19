@@ -14,13 +14,15 @@ Group: Applications/Internet
 URL: http://meanwhile.sourceforge.net/
 
 Requires: glib2 >= @GLIB_VERSION@
-Requires: meanwhile = @MEANWHILE_VERSION@
+Requires: meanwhile >= @MEANWHILE_MIN_VERSION@
+Requires: meanwhile < @MEANWHILE_MAX_VERSION@
 Requires: python >= @PYTHON_VERSION@
 
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: glib2-devel >= @GLIB_VERSION@
-BuildRequires: meanwhile-devel = @MEANWHILE_VERSION@
+BuildRequires: meanwhile-devel >= @MEANWHILE_MIN_VERSION@
+BuildRequires: meanwhile-devel < @MEANWHILE_MAX_VERSION@
 BuildRequires: python-devel >= @PYTHON_VERSION@
 
 

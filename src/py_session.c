@@ -286,7 +286,6 @@ static PyObject *py_chan_send(mwPySession *self, PyObject *args) {
   struct mwOpaque o = { 0, 0 };
   gboolean enc = TRUE;
   struct mwChannel *c;
-  int ret;
 
   if(! PyArg_ParseTuple(args, "llt#|l", &id, &type, &o.data, &o.len, &enc))
     return NULL;
@@ -294,8 +293,10 @@ static PyObject *py_chan_send(mwPySession *self, PyObject *args) {
   c = mwChannel_find(mwSession_getChannels(self->session), id);
   if(! c) mw_raise("no such channel", NULL);
 
-  ret = mwChannel_sendEncrypted(c, type, &o, enc);
-  return PyInt_FromLong(ret);
+  if(mwChannel_sendEncrypted(c, type, &o, enc))
+    mw_raise("error sending data on channel", NULL);
+
+  mw_return_none();
 }
 
 

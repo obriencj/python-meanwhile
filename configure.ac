@@ -1,8 +1,12 @@
 
-# version of meanwhile
-m4_define(meanwhile_version,		0.4.3cvs)
+# version of pymeanwhile
+m4_define(pymeanwhile_version,		1.0.0cvs)
 
-# required and compat version of glib2.
+# required minimum version of meanwhile
+m4_define(meanwhile_min_version,	0.4.3)
+m4_define(meanwhile_max_version,	2.0.0)
+
+# required min version of glib2.
 m4_define(glib_required_version,	2.0.0)
 
 # this is just to generate the requirement in the specfile. It would
@@ -159,6 +163,9 @@ PKG_CHECK_MODULES(MEANWHILE, meanwhile,
 
 AC_SUBST(MEANWHILE_CFLAGS)
 AC_SUBST(MEANWHILE_LIBS)
+
+AC_SUBST(MEANWHILE_MIN_VERSION)
+AC_SUBST(MEANWHILE_MAX_VERSION)
 
 
 AC_CONFIG_FILES(

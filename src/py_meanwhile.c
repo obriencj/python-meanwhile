@@ -30,6 +30,24 @@
 #include <mw_srvc_resolve.h>
 
 
+__attribute__((used))
+static void hushed_log_handler(const gchar *domain, GLogLevelFlags flags,
+			       const gchar *msg, gpointer data) {
+  ; 
+}
+
+
+static void setup_debug() {
+#if DEBUG
+  GLogLevelFlags logflags =
+    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION;
+
+  g_log_set_handler(G_LOG_DOMAIN, logflags, hushed_log_handler, NULL);
+  g_log_set_handler("meanwhile", logflags, hushed_log_handler, NULL);
+#endif
+}
+
+
 #ifndef PyMODINIT_FUNC
 #define PyMODINIT_FUNC void
 #endif
@@ -46,6 +64,8 @@ static struct PyMethodDef py_methods[] = {
 
 PyMODINIT_FUNC init_meanwhile() {
   PyObject *m;
+
+  setup_debug();
 
   m = Py_InitModule3("_meanwhile", py_methods, "Meanwhile client module");
 

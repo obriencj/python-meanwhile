@@ -30,7 +30,6 @@ Wrappers for the Meanwhile library
 
 
 # the useful classes
-from _meanwhile import Channel
 from _meanwhile import Service
 from _meanwhile import ServiceAware
 from _meanwhile import ServiceConference
@@ -219,17 +218,6 @@ class SocketSession(Session):
         
         return self._thread
 
-
-#class FileTransfer():
-#    def __init__(self, srvc_ft):
-#        self.srvc = srvc_ft
-    
-
-
-#class ServiceFileTransfer(_meanwhile.ServiceFileTransfer):
-#    def __init__(self, session):
-#        _meanwhile.ServiceFileTransfer.__init__(self, session)
-    
     
 
 # The End.

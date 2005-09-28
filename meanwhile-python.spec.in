@@ -32,6 +32,25 @@ written in the Python programming language to use the interface supplied
 by the Meanwhile library.
 
 
+%prep
+%setup -q
+
+
+%build
+%configure
+%{__make} %{?_smp_mflags}
+
+
+%install
+%{__rm} -rf %{buildroot}
+%{makeinstall} DESTDIR=$RPM_BUILD_ROOT
+
+
+%clean
+%{__rm} -rf %{buildroot}
+
+
+
 %files
 %defattr(-,root,root,-)
 %{python_site_packages}/_meanwhile.so

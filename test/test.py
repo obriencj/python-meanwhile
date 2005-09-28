@@ -6,6 +6,7 @@
 
 import meanwhile
 import os
+import sys
 
 
 
@@ -300,10 +301,13 @@ shutdown\n\tshuts the bot down'''
         try:
             # first, write it to the mime tmp file
             f = open("tmp.mime", 'w')
-            f.write(data)
-            f.close()
+	    
         except Exception, e:
             print >> sys.stderr, e
+	    
+	else:
+	    f.write(data)
+            f.close()
         
         # second, parse and display
         msg = Parser().parsestr(data)

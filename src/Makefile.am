@@ -48,7 +48,7 @@ noinst_DATA = .libs/renamed
 
 
 install-data-hook:
-	( cd $(pythondir) ; \
+	( cd $(DESTDIR)$(pythondir) ; \
 	  rm -f UNDERSCORE_meanwhile.*a ; \
 	  for F in UNDERSCORE_meanwhile* ; do \
 		mv $$F `echo $$F | sed s/UNDERSCORE//` ; \

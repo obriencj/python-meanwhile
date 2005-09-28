@@ -556,6 +556,7 @@ static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
     mwSession_setClientData(s, self, NULL);
     
     mwSession_addCipher(s, mwCipher_new_RC2_40(s));
+    mwSession_addCipher(s, mwCipher_new_RC2_128(s));
   }
 
   return (PyObject *) self;

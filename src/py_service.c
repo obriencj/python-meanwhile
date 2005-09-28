@@ -445,18 +445,19 @@ static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
 
 
 static void tp_dealloc(mwPyService *self) {
-  /* this ends up calling mw_clear, freeing self->wrapped */
-  mwService_free(MW_SERVICE(self->wrapper));
-  self->wrapper = NULL;
-
-  Py_XDECREF(self->session);
-  self->session = NULL;
 
   if(self->cleanup) {
     self->cleanup(self->data);
     self->cleanup = NULL;
   }
   self->data = NULL;
+
+  /* this ends up calling mw_clear, freeing self->wrapped */
+  mwService_free(MW_SERVICE(self->wrapper));
+  self->wrapper = NULL;
+
+  Py_XDECREF(self->session);
+  self->session = NULL;
 
   self->ob_type->tp_free((PyObject *) self);
 }

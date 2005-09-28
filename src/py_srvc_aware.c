@@ -235,7 +235,7 @@ static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
   mwAwareList_setClientData(aware_list, self, NULL);
 
   self->data = aware_list;
-  self->cleanup = (GDestroyNotify) mwAwareList_free;
+  self->cleanup = NULL; /* cleanup of service will free list */
 
   /* create a python wrapper service built around this instance */
   /* sets self->wrapper and self->service */

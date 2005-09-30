@@ -3,8 +3,8 @@
 m4_define(pymeanwhile_version,		1.0.0cvs)
 
 # required minimum version of meanwhile
-m4_define(meanwhile_min_version,	0.4.3)
-m4_define(meanwhile_max_version,	0.5.0)
+m4_define(meanwhile_min_version,	0.5.0)
+m4_define(meanwhile_max_version,	0.6.0)
 
 # required min version of glib2.
 m4_define(glib_required_version,	2.0.0)
@@ -15,13 +15,16 @@ m4_define(glib_required_version,	2.0.0)
 m4_define(python_required_version,	2.2)
 
 
+
 AC_INIT
-AM_INIT_AUTOMAKE(meanwhile-python, meanwhile_version)
+AM_INIT_AUTOMAKE(meanwhile-python, pymeanwhile_version)
 
 RELEASE=1
 AC_SUBST(RELEASE)
 
 AC_PREREQ([2.50])
+
+AM_MAINTAINER_MODE
 
 AC_PROG_CC
 
@@ -37,6 +40,7 @@ AC_C_CONST
 AC_STRUCT_TM
 
 
+
 # tell pkgconfig to look in the same prefix we're installing this to,
 # as that's likely where meanwhile will be found if it's not in the
 # default pkgconfig path
@@ -50,10 +54,12 @@ PKG_CONFIG_PATH="$PKG_CONFIG_PATH":"$PREFIX/lib/pkgconfig"
 export PKG_CONFIG_PATH
 
 
+
 # Debugging option
 AC_ARG_ENABLE(debug,
 	[  --enable-debug	  compile with debugging support],
 	AC_DEFINE(DEBUG, 1, [Define if debugging is enabled.]), )
+
 
 
 # Darwin...
@@ -69,6 +75,7 @@ fi
 AC_SUBST(os_so_ext)
 AC_SUBST(os_ld_flags)
 AC_SUBST(os_ld_flags_python)
+
 
 
 # Python wrapper option
@@ -156,8 +163,11 @@ AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
 
+
 # Meanwhile required, of course
-PKG_CHECK_MODULES(MEANWHILE, meanwhile,
+PKG_CHECK_MODULES(MEANWHILE,
+	[meanwhile >= meanwhile_min_version]
+	[meanwhile < meanwhile_max_version],
 	[AC_DEFINE(HAVE_MEANWHILE, 1, [We've found meanwhile])]
 )
 

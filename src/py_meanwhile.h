@@ -22,6 +22,7 @@
 #define _HAVE_PYMW_H
 
 
+#include <glib.h>
 #include <glib/ghash.h>
 
 
@@ -218,6 +219,15 @@ PyObject *mw_varargs_none(PyObject *obj, PyObject *args);
 #define mw_raise_readonly(name) \
   mw_raise_exc(PyExc_TypeError, "member '" name "' is read-only", -1)
 
+
+#ifndef g_debug
+#define g_debug(format...) g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, format)
+#endif
+
+
+#ifndef g_info
+#define g_info(format...) g_log(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, format)
+#endif
 
 
 /*@}*/

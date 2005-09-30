@@ -94,6 +94,8 @@ static void mw_start(struct mwService *srvc) {
   struct mwServicePyWrap *py_srvc;
   PyObject *robj;
 
+  g_debug("py_service:mw_start");
+
   py_srvc = (struct mwServicePyWrap *) srvc;
   robj = PyObject_CallMethod((PyObject *) py_srvc->self, "start", NULL);
   Py_XDECREF(robj);
@@ -104,6 +106,8 @@ static void mw_stop(struct mwService *srvc) {
   struct mwServicePyWrap *py_srvc;
   PyObject *robj;
 
+  g_debug("py_service:mw_stop");
+
   py_srvc = (struct mwServicePyWrap *) srvc;
   robj = PyObject_CallMethod((PyObject *) py_srvc->self, "stop", NULL);
   Py_XDECREF(robj);
@@ -113,6 +117,8 @@ static void mw_stop(struct mwService *srvc) {
 static void mw_clear(struct mwService *srvc) {
   struct mwServicePyWrap *py_srvc = (struct mwServicePyWrap *) srvc;
   mwPyService *self = mwServicePyWrap_getSelf(py_srvc);
+
+  g_debug("py_service:mw_clear");
 
   if(self->wrapped) {
     mwService_free(self->wrapped);
@@ -213,6 +219,8 @@ mwPyService *mwServicePyWrap_getSelf(struct mwServicePyWrap *s) {
 
 
 static PyObject *py_start(mwPyService *self) {
+  g_debug("py_service:py_start");
+
   if(self->wrapped) {
     mwService_start(self->wrapped);
     mw_return_none();
@@ -230,6 +238,8 @@ static PyObject *py_started(mwPyService *self) {
 
 
 static PyObject *py_stop(mwPyService *self) {
+  g_debug("py_service:py_stop");
+
   if(self->wrapped) {
     mwService_stop(self->wrapped);
     mw_return_none();
@@ -445,7 +455,7 @@ static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
 
 
 static void tp_dealloc(mwPyService *self) {
-
+  /* specialty cleanup first */
   if(self->cleanup) {
     self->cleanup(self->data);
     self->cleanup = NULL;

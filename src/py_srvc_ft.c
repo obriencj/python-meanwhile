@@ -279,7 +279,7 @@ static PyObject *py_list(mwPyService *self) {
   srvc = (struct mwServiceFileTransfer *) self->wrapped;
   transfers = mwServiceFileTransfer_getTransfers(srvc);
 
-  t = PyTuple_New(g_list_length(transfers));
+  t = PyTuple_New(g_list_length((GList *) transfers));
   for(i = 0; transfers; transfers = transfers->next) {
     struct mwFileTransfer *ft;
     guint32 id;

@@ -38,7 +38,7 @@
 #define ON_SET_PRIVACY   "onSetPrivacy"
 #define ON_SET_USER      "onSetUserStatus"
 #define ON_ADMIN         "onAdmin"
-#define ON_REDIR         "onLoginRedirect"
+#define ON_ANNOUNCE      "onAnnounce"
 
 
 static int mw_io_write(struct mwSession *s, const char *buf, gsize len) {
@@ -52,12 +52,11 @@ static int mw_io_write(struct mwSession *s, const char *buf, gsize len) {
   pbuf = PyBuffer_FromMemory((char *) buf, len);
   g_return_val_if_fail(pbuf != NULL, -1);
 
-  robj = PyObject_CallMethod(sobj, ON_IO_WRITE, "O", pbuf);
+  robj = PyObject_CallMethod(sobj, ON_IO_WRITE, "N", pbuf);
 
   if(robj && PyInt_Check(robj))
     ret = (int) PyInt_AsLong(robj);
 
-  Py_DECREF(pbuf);
   Py_XDECREF(robj);
 
   return ret;
@@ -81,7 +80,7 @@ static void mw_clear(struct mwSession *s) {
 
 
 static void mw_on_state(struct mwSession *s,
-		      enum mwSessionState state, guint32 info) {
+			enum mwSessionState state, gpointer info) {
 
   PyObject *sobj, *robj;
 
@@ -123,24 +122,24 @@ static void mw_on_admin(struct mwSession *s, const char *text) {
   g_return_if_fail(sobj != NULL);
 
   a = PyString_SafeFromString(text);
-  robj = PyObject_CallMethod(sobj, ON_ADMIN, "O", a);
 
-  Py_DECREF(a);
+  robj = PyObject_CallMethod(sobj, ON_ADMIN, "N", a);
   Py_XDECREF(robj);
 }
 
 
-static void mw_on_redirect(struct mwSession *s, const char *host) {
+static void mw_on_announce(struct mwSession *s, struct mwLoginInfo *from,
+			   gboolean may_reply, const char *text) {
   PyObject *sobj, *robj;
-  PyObject *a;
+  PyObject *b, *c;
 
   sobj = mwSession_getClientData(s);
   g_return_if_fail(sobj != NULL);
 
-  a = PyString_SafeFromString(host);
-  robj = PyObject_CallMethod(sobj, ON_REDIR, "O", a);
+  b = PyInt_FromLong(may_reply);
+  c = PyString_SafeFromString(text);
 
-  Py_DECREF(a);
+  robj = PyObject_CallMethod(sobj, ON_ANNOUNCE, "NN", b, c);
   Py_XDECREF(robj);
 }
 
@@ -469,8 +468,8 @@ static struct PyMethodDef tp_methods[] = {
   { ON_ADMIN, MW_METH_VARARGS_NONE, METH_VARARGS,
     "override to handle session's admin broadcast messages" },
 
-  { ON_REDIR, MW_METH_VARARGS_NONE, METH_VARARGS,
-    "override to handle login redirect messages" },
+  { ON_ANNOUNCE, MW_METH_VARARGS_NONE, METH_VARARGS,
+    "override to handle announcement messages" },
 
   /* real methods */
   { "start", (PyCFunction) py_start, METH_VARARGS,
@@ -547,7 +546,7 @@ static PyObject *tp_new(PyTypeObject *t, PyObject *args, PyObject *kwds) {
     h->on_setPrivacyInfo = mw_on_privacy;
     h->on_setUserStatus = mw_on_user;
     h->on_admin = mw_on_admin;
-    h->on_loginRedirect = mw_on_redirect;
+    h->on_announce = mw_on_announce;
 
     self->session = s = mwSession_new(h);
     self->services = g_hash_table_new_full(g_direct_hash, g_direct_equal,
